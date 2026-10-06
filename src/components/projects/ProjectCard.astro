@@ -21,7 +21,7 @@ const filled = p.icon === "star";
       <div class="absolute inset-0 bg-black translate-x-[5px] translate-y-[5px] group-hover:translate-x-[8px] group-hover:translate-y-[8px] transition-transform duration-300" style={clip + mask}></div>
       <div class="absolute inset-0 bg-black" style={clip + mask}></div>
       <div class="absolute inset-[3px]" style={`${clip}${paperMask}background-color:#FEFCF7;${patterns[p.patternKey]}`}>
-        <div class="absolute inset-0 opacity-[.06] mix-blend-multiply pointer-events-none" style={`background-image:${noiseUri}`}></div>
+        <div class="absolute inset-0 opacity-[.06] md:mix-blend-multiply hidden md:block pointer-events-none" style={`background-image:${noiseUri}`}></div>
         <div class="absolute top-0 bottom-0 left-8 w-px bg-red-400/30"></div>
         {index === 2 && <div class="absolute top-0 bottom-0 left-[35px] w-px bg-red-400/20"></div>}
       </div>
