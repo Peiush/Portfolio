@@ -1,0 +1,138 @@
+---
+import ProjectCard from "./ProjectCard.astro";
+import CatPlayground from "./CatPlayground";
+import { projects } from "../../data/projects";
+---
+
+<section
+  id="projects"
+  data-cursor="catpaw"
+  class="my-works-section-gsap w-full h-[1320px] bg-[#a855f7] text-black relative overflow-hidden border-b-4 border-black select-none"
+  style="z-index:9"
+>
+  <svg viewBox="0 0 1000 1000" preserveAspectRatio="none" class="hidden md:block absolute inset-0 w-full h-full overflow-visible pointer-events-none z-10" aria-hidden="true" focusable="false">
+    <path data-draw-entry d="M0 90 H170 V300 H330" fill="none" stroke="#000" stroke-width="14"></path>
+    <path data-draw-entry d="M0 90 H170 V300 H330" fill="none" stroke="#7000FF" stroke-width="8"></path>
+    <path data-draw-exit d="M670 300 H830 V90 H1000" fill="none" stroke="#000" stroke-width="14"></path>
+    <path data-draw-exit d="M670 300 H830 V90 H1000" fill="none" stroke="#7000FF" stroke-width="8"></path>
+  </svg>
+  <div class="absolute inset-0 pointer-events-none opacity-[.06]" style="background-image:linear-gradient(to right,#000 2px,transparent 2px),linear-gradient(to bottom,#000 2px,transparent 2px);background-size:40px 40px"></div>
+
+  <svg class="hidden md:block absolute left-[7%] top-[52px] w-14 h-14 text-black/70 pointer-events-none z-10" viewBox="0 0 48 48" fill="currentColor" aria-hidden="true" focusable="false">
+    <g transform="rotate(-12 14 14)"><ellipse cx="14" cy="18" rx="5" ry="4.2"/><circle cx="7" cy="11" r="2.4"/><circle cx="12" cy="7" r="2.4"/><circle cx="18" cy="7" r="2.4"/><circle cx="23" cy="11" r="2.4"/></g>
+    <g transform="rotate(14 34 34) translate(4 6) scale(.85)"><ellipse cx="30" cy="36" rx="5" ry="4.2"/><circle cx="23" cy="29" r="2.4"/><circle cx="28" cy="25" r="2.4"/><circle cx="34" cy="25" r="2.4"/><circle cx="39" cy="29" r="2.4"/></g>
+  </svg>
+
+  <div class="absolute top-[60px] inset-x-0 flex flex-col items-center px-4 text-center z-20">
+    <p class="px-3 py-1 bg-black text-[#a855f7] text-[10px] font-mono tracking-[0.3em] uppercase mb-4 shadow-[2px_2px_0_#000] border-2 border-black">PORTFOLIO // SECTION 03</p>
+    <h2 class="text-4xl md:text-6xl font-black uppercase tracking-tighter bg-white border-4 border-black px-6 py-4 shadow-[6px_6px_0_#000] font-neobrutal">SELECTED PROJECTS</h2>
+    <p class="text-xs font-mono font-bold bg-yellow-300 px-3 py-1 border border-black shadow-[2px_2px_0_#000] uppercase tracking-wider mt-4">
+      <span class="md:hidden">Drag ↔ to slide cards</span><span class="hidden md:inline">↔️ Drag track horizontally to slide &amp; swing cards!</span>
+    </p>
+  </div>
+
+  <div class="absolute top-[450px] left-0 right-0 px-2 overflow-visible">
+    <div data-hanging-rod class="absolute top-[16.25px] left-[-20vw] right-[-20vw] h-[7.5px] bg-[#7000FF] shadow-[3px_3px_0_#000] z-10 pointer-events-none"></div>
+    <div
+      class="works-track flex items-start justify-center gap-6 sm:gap-12 lg:gap-24 px-[5dvw] relative w-max min-w-full z-20 cursor-grab active:cursor-grabbing"
+      style="touch-action:pan-y;user-select:none;outline:none"
+      tabindex="0"
+      role="group"
+      aria-label="Projects. Use left and right arrow keys to slide."
+    >
+      {projects.map((p, i) => <ProjectCard project={p} index={i} />)}
+    </div>
+  </div>
+
+  <CatPlayground client:visible={{ rootMargin: "1400px" }} />
+</section>
+
+<script>
+  import { gsap, Draggable } from "../../lib/gsap";
+  import { prefersReducedMotion } from "../../lib/motion";
+  import { track } from "../../lib/track";
+
+  const section = document.getElementById("projects")!;
+  const trackEl = section.querySelector<HTMLElement>(".works-track")!;
+  const rod = section.querySelector<HTMLElement>("[data-hanging-rod]")!;
+  const reduced = prefersReducedMotion();
+  const entry = [...section.querySelectorAll<SVGPathElement>("[data-draw-entry]")];
+  const exit = [...section.querySelectorAll<SVGPathElement>("[data-draw-exit]")];
+  const full = "polygon(0 0,100% 0,100% 100%,0 100%)";
+
+  if (reduced) {
+    gsap.set(rod, { clipPath: full });
+  } else {
+    [...entry, ...exit].forEach((p) => {
+      const len = p.getTotalLength();
+      gsap.set(p, { strokeDasharray: len, strokeDashoffset: len });
+    });
+    gsap.set(rod, { clipPath: "polygon(100% 0,100% 0,100% 100%,100% 100%)" });
+    gsap
+      .timeline({ scrollTrigger: { trigger: section, start: "top bottom", end: "top top-=500", scrub: 0.5 } })
+      .to(entry, { strokeDashoffset: 0, duration: 1, ease: "none" })
+      .to(rod, { clipPath: full, duration: 1.5 })
+      .to(exit, { strokeDashoffset: 0, duration: 0.8, ease: "none" });
+  }
+
+  const swings = [...trackEl.querySelectorAll<HTMLElement>(".work-card-swing")];
+  const clamp = gsap.utils.clamp(-35, 35);
+  let prevX = 0;
+  let throwing = false;
+  const swing = (deg: number, dur: number, ease: string) => {
+    if (!reduced) gsap.to(swings, { rotateZ: deg, duration: dur, ease, overwrite: "auto" });
+  };
+  const settle = () => swing(0, 1.5, "elastic.out(1,0.3)");
+
+  // With only a few cards nothing overflows, so allow a gentle slide and spring back to centre.
+  const fewCards = () => trackEl.scrollWidth <= section.clientWidth + 1;
+  const range = () => (fewCards() ? { minX: -260, maxX: 260 } : section);
+  const recenter = () => {
+    if (!fewCards() || reduced) return;
+    let last = gsap.getProperty(trackEl, "x") as number;
+    gsap.to(trackEl, {
+      x: 0, duration: 1.6, ease: "elastic.out(1,0.45)", overwrite: true,
+      onUpdate() {
+        const x = gsap.getProperty(trackEl, "x") as number;
+        swing(clamp((x - last) * 0.6), 0.3, "power2.out");
+        last = x;
+        draggable.update();
+      },
+      onComplete: settle,
+    });
+  };
+
+  const draggable = Draggable.create(trackEl, {
+    type: "x",
+    bounds: range(),
+    dragClickables: false,
+    inertia: true,
+    edgeResistance: 0.8,
+    zIndexBoost: false,
+    onPress() { gsap.killTweensOf(trackEl); },
+    onDragStart() { prevX = this.x; },
+    onDrag() { swing(clamp(this.deltaX * 0.6), 0.8, "power3.out"); },
+    onThrowUpdate() {
+      swing(clamp((this.x - prevX) * 0.6), 0.4, "power2.out");
+      prevX = this.x;
+    },
+    onThrowComplete() { throwing = false; fewCards() ? recenter() : settle(); },
+    onDragEnd() {
+      throwing = this.tween && this.tween.isActive();
+      if (!throwing) fewCards() ? recenter() : settle();
+    },
+  })[0];
+  window.addEventListener("resize", () => { draggable.applyBounds(range()); draggable.update(); });
+
+  trackEl.addEventListener("keydown", (e) => {
+    if (e.key !== "ArrowLeft" && e.key !== "ArrowRight") return;
+    e.preventDefault();
+    const dir = e.key === "ArrowLeft" ? 1 : -1;
+    const x = gsap.utils.clamp(draggable.minX, draggable.maxX, (gsap.getProperty(trackEl, "x") as number) + dir * 200);
+    gsap.to(trackEl, { x, duration: 0.4, ease: "power2.out", onUpdate: () => draggable.update() });
+  });
+
+  section.querySelectorAll<HTMLAnchorElement>("[data-project-view]").forEach((a) =>
+    a.addEventListener("click", () => track("project_view_click", { project_name: a.dataset.projectView })),
+  );
+</script>

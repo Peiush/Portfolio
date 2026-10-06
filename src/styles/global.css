@@ -1,0 +1,86 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter Variable", system-ui, sans-serif;
+  --font-neobrutal: "Lexend Mega", sans-serif;
+  --font-constructivism: "Staatliches", sans-serif;
+  --font-swiss: "Inter Variable", "Helvetica Neue", Arial, sans-serif;
+  --font-handwritten: "Caveat", "Architects Daughter", cursive;
+  --font-serif: "Playfair Display", serif;
+
+  --color-shell: #09090b;
+  --color-shell-2: #0c0c0c;
+
+  --animate-spin-slow: spin 8s linear infinite;
+  --animate-flutter: flutter 0.22s linear infinite;
+
+  @keyframes flutter {
+    0%, 100% { transform: scaleX(1) skewY(0deg); }
+    50% { transform: scaleX(0.18) skewY(6deg); }
+  }
+}
+
+html.custom-cursor-active,
+html.custom-cursor-active * {
+  cursor: none !important;
+}
+
+::selection {
+  background: #fde047;
+  color: #000;
+}
+
+.magic-title { font-family: "Almendra", serif; }
+.magic-subtitle { font-family: "Sofia", cursive; }
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-spin-slow, .animate-flutter { animation: none; }
+}
+
+/* ---------- Hero geometry ---------- */
+:root {
+  --clip-1: polygon(0% 0%, 45% 0%, 40% 52%, 0% 45%);
+  --clip-2: polygon(45% 0%, 100% 0%, 100% 40%, 70% 48%, 40% 52%);
+  --clip-3: polygon(0% 45%, 40% 52%, 35% 100%, 0% 100%);
+  --clip-4: polygon(40% 52%, 70% 48%, 65% 100%, 35% 100%);
+  --clip-5: polygon(70% 48%, 100% 40%, 100% 100%, 65% 100%);
+}
+@media (max-width: 767px) {
+  :root {
+    --clip-1: polygon(0 0, 0 0, 0 0, 0 0);
+    --clip-2: polygon(0 0, 100% 0, 100% 25%, 0 25%);
+    --clip-3: polygon(0 25%, 100% 25%, 100% 50%, 0 50%);
+    --clip-4: polygon(0 50%, 100% 50%, 100% 75%, 0 75%);
+    --clip-5: polygon(0 75%, 100% 75%, 100% 100%, 0 100%);
+  }
+  #hero-cell-1 { display: none !important; }
+  .hero-block {
+    left: 50% !important;
+    right: auto !important;
+    top: var(--mt) !important;
+    bottom: auto !important;
+    transform: translate(-50%, -50%) !important;
+    text-align: center !important;
+    align-items: center !important;
+  }
+}
+
+/* ---------- Cat playground ---------- */
+@keyframes cat-blink { 0%, 92%, 100% { transform: scaleY(1); } 95% { transform: scaleY(0.1); } }
+@keyframes cat-ear { 0%, 90%, 100% { transform: rotate(0); } 94% { transform: rotate(-12deg); } }
+@keyframes cat-purr { 0%, 100% { transform: translateX(-1px); } 50% { transform: translateX(1px); } }
+@keyframes dog-chomp { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(14deg); } }
+@keyframes cat-pop { 0% { opacity: 0; transform: translateY(0) scale(.6); } 15% { opacity: 1; transform: translateY(-8px) scale(1.1); } 100% { opacity: 0; transform: translateY(-46px) scale(1); } }
+.cat-eye { transform-box: fill-box; transform-origin: center; animation: cat-blink 4.5s infinite; }
+.cat-ear { transform-box: fill-box; transform-origin: bottom center; animation: cat-ear 6s infinite; }
+.cat-purring { animation: cat-purr .12s linear infinite; }
+.dog-jaw { transform-box: fill-box; transform-origin: left center; animation: dog-chomp .18s linear infinite; }
+.cat-popup { animation: cat-pop .9s ease-out forwards; }
+@media (prefers-reduced-motion: reduce) {
+  .cat-eye, .cat-ear, .cat-purring, .dog-jaw { animation: none; }
+}
+
+/* ---------- Skills OS ---------- */
+@keyframes satchel-signal { from { opacity: .4; transform: scaleY(.65); } to { opacity: 1; transform: scaleY(1); } }
+.satchel-bar { transform-origin: bottom; animation: satchel-signal 1.4s ease-in-out infinite alternate; }
+@media (prefers-reduced-motion: reduce) { .satchel-bar { animation: none; } }

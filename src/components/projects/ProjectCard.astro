@@ -1,0 +1,70 @@
+---
+import type { Project } from "../../data/projects";
+import { edges, patterns, icons, noiseUri, rotations } from "./cardStyles";
+
+interface Props { project: Project; index: number }
+const { project: p, index } = Astro.props;
+const clip = `clip-path:${edges[p.edgeKey]};`;
+const mask = "mask-image:radial-gradient(circle at 50% 20px,transparent 10px,black 11px);-webkit-mask-image:radial-gradient(circle at 50% 20px,transparent 10px,black 11px);";
+const paperMask = mask.replaceAll("20px", "17px");
+const n = String(index + 1).padStart(2, "0");
+const spin = p.icon === "compass" ? "animate-spin-slow" : "";
+const filled = p.icon === "star";
+---
+
+<div class="relative shrink-0">
+  <div class="work-card-swing origin-top" style="transform-origin:50% 20px">
+    <article
+      class="relative select-none w-[280px] sm:w-[320px] group transition-all duration-300 hover:-translate-y-1.5 hover:skew-x-1"
+      style={`min-height:${p.cardHeight}px`}
+    >
+      <div class="absolute inset-0 bg-black translate-x-[5px] translate-y-[5px] group-hover:translate-x-[8px] group-hover:translate-y-[8px] transition-transform duration-300" style={clip + mask}></div>
+      <div class="absolute inset-0 bg-black" style={clip + mask}></div>
+      <div class="absolute inset-[3px]" style={`${clip}${paperMask}background-color:#FEFCF7;${patterns[p.patternKey]}`}>
+        <div class="absolute inset-0 opacity-[.06] mix-blend-multiply pointer-events-none" style={`background-image:${noiseUri}`}></div>
+        <div class="absolute top-0 bottom-0 left-8 w-px bg-red-400/30"></div>
+        {index === 2 && <div class="absolute top-0 bottom-0 left-[35px] w-px bg-red-400/20"></div>}
+      </div>
+
+      <div class="absolute left-1/2 -translate-x-1/2 top-[6px] w-[22px] h-[22px] rounded-full border-[3px] border-black z-30 pointer-events-none"></div>
+      <span
+        class="absolute -top-1.5 right-4 px-2.5 py-1 text-black font-mono text-[9px] font-black border-2 border-black shadow-[2px_2px_0_#000] uppercase tracking-wider z-30"
+        style={`background:${p.stampColor};transform:rotate(${rotations[index % 5]}deg)`}
+      >{p.category}</span>
+
+      <div class="relative z-10 flex flex-col justify-between gap-4 p-5 pt-10 pb-14 h-full" style={`min-height:${p.cardHeight}px`}>
+        <div class="flex flex-col gap-4">
+          <div class="flex items-center justify-between border-b border-black/10 pb-2">
+            <span class="text-[9px] font-mono font-bold tracking-widest text-zinc-400 uppercase">// PROJECT_{n}</span>
+            <svg class={`w-4 h-4 mr-8 ${spin}`} viewBox="0 0 24 24" fill={filled ? "#000" : "none"} stroke="#000" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false" set:html={icons[p.icon]} />
+          </div>
+          <h3 class="text-xl md:text-2xl font-black uppercase tracking-tight font-neobrutal border-b-2 border-black pb-1.5 line-clamp-2 text-zinc-900">{p.title}</h3>
+          <p class="text-xs font-mono font-bold leading-relaxed text-zinc-700">{p.description}</p>
+
+          {p.media.src ? (
+            <img src={p.media.src} alt={p.media.alt} width={p.media.width} height={p.media.height} loading="lazy" class={`h-[120px] object-contain mx-auto transition-all duration-300 ${p.media.treatment === "spin" ? "group-hover:rotate-[360deg]" : ""}`} />
+          ) : (
+            <div class="h-[120px] border-2 border-dashed border-black/30 flex items-center justify-center text-[10px] font-mono text-zinc-400">{p.media.alt}</div>
+          )}
+        </div>
+
+        <div class="flex flex-col gap-3">
+          <div class="flex flex-wrap gap-1.5">
+            {p.tags.map((t) => <span class="px-2 py-0.5 bg-white border border-black font-mono text-[9px] font-bold rounded text-zinc-800">#{t}</span>)}
+          </div>
+          <a
+            href={p.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            data-project-view={p.slug}
+            class="flex items-center justify-center gap-2 w-full py-2 bg-[var(--c)] text-black font-mono text-xs font-black border-2 border-black shadow-[3px_3px_0_#000] hover:bg-black hover:text-[var(--c)] hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[1px_1px_0_#000] transition-all duration-200 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-black"
+            style={`--c:${p.stampColor}`}
+          >
+            VIEW WORK
+            <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M15 3h6v6"/><path d="M10 14 21 3"/><path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/></svg>
+          </a>
+        </div>
+      </div>
+    </article>
+  </div>
+</div>

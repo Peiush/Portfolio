@@ -1,0 +1,91 @@
+---
+const variants = [
+  "brutal", "constructivism", "handdrawn", "pencil", "catpaw",
+  "retro", "retro-hand", "retro-move", "retro-text", "retro-crosshair",
+];
+---
+
+<div
+  id="custom-cursor"
+  class="fixed top-0 left-0 z-[10000] pointer-events-none w-2 h-2 rounded-full bg-white opacity-0 [mix-blend-mode:difference]"
+  aria-hidden="true"
+>
+  {/* {{TODO}} replace placeholder glyphs with original themed art */}
+  {variants.map((v) => (
+    <span data-cursor-content={v} class="hidden absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-[10px] leading-none text-black whitespace-nowrap">
+      <span class="block w-3 h-3 bg-black border border-white"></span>
+    </span>
+  ))}
+</div>
+<div
+  id="custom-cursor-follower"
+  class="fixed top-0 left-0 z-[9999] pointer-events-none opacity-0 w-8 h-8 border border-zinc-300 rounded-full bg-zinc-300/10"
+  aria-hidden="true"
+>
+</div>
+
+<script>
+  import { gsap } from "../../lib/gsap";
+  import { prefersReducedMotion } from "../../lib/motion";
+
+  const dot = document.getElementById("custom-cursor")!;
+  const follower = document.getElementById("custom-cursor-follower")!;
+  const enabled =
+    window.matchMedia("(min-width:769px) and (hover:hover) and (pointer:fine)").matches &&
+    !prefersReducedMotion();
+
+  const followerBase = "fixed top-0 left-0 z-[9999] pointer-events-none";
+  const followerStyles: Record<string, string> = {
+    default: "w-8 h-8 border border-zinc-300 rounded-full bg-zinc-300/10",
+    minimal: "w-3 h-3 bg-zinc-400/50 border border-zinc-200",
+    swiss: "w-12 h-12 border-2 border-dashed border-red-500/40 rounded-full animate-spin-slow",
+    eraser: "w-6 h-6 border-2 border-dashed border-zinc-800 rounded-full bg-zinc-800/10",
+  };
+  const glyphVariants = new Set([
+    "brutal", "constructivism", "handdrawn", "pencil", "catpaw",
+    "retro", "retro-hand", "retro-move", "retro-text", "retro-crosshair",
+  ]);
+
+  if (!enabled) {
+    dot.remove();
+    follower.remove();
+  } else {
+    document.documentElement.classList.add("custom-cursor-active");
+    gsap.set([dot, follower], { xPercent: -50, yPercent: -50, opacity: 0 });
+    const dotX = gsap.quickTo(dot, "x", { duration: 0.05, ease: "power2.out" });
+    const dotY = gsap.quickTo(dot, "y", { duration: 0.05, ease: "power2.out" });
+    const folX = gsap.quickTo(follower, "x", { duration: 0.35, ease: "power3.out" });
+    const folY = gsap.quickTo(follower, "y", { duration: 0.35, ease: "power3.out" });
+
+    let placed = false;
+    window.addEventListener("pointermove", (e) => {
+      if (!placed) {
+        gsap.set([dot, follower], { x: e.clientX, y: e.clientY, opacity: 1 });
+        placed = true;
+        return;
+      }
+      dotX(e.clientX); dotY(e.clientY); folX(e.clientX); folY(e.clientY);
+    });
+    document.addEventListener("mouseleave", () => gsap.to([dot, follower], { opacity: 0, duration: 0.2 }));
+    document.addEventListener("mouseenter", () => placed && gsap.to([dot, follower], { opacity: 1, duration: 0.2 }));
+
+    let current = "";
+    const apply = (value: string) => {
+      if (value === current) return;
+      current = value;
+      const glyph = glyphVariants.has(value);
+      follower.className = `${followerBase} ${glyph ? "w-0 h-0 opacity-0" : (followerStyles[value] ?? followerStyles.default)}`;
+      dot.style.mixBlendMode = value === "default" ? "difference" : "normal";
+      dot.querySelectorAll<HTMLElement>("[data-cursor-content]").forEach((c) => {
+        c.classList.toggle("hidden", c.dataset.cursorContent !== value);
+      });
+      dot.classList.toggle("bg-white", !glyph);
+      dot.classList.toggle("bg-transparent", glyph);
+    };
+    apply("default");
+    document.addEventListener("mouseover", (e) => {
+      const host = (e.target as Element).closest<HTMLElement>("[data-cursor]");
+      apply(host?.dataset.cursor ?? "default");
+    });
+  }
+</script>

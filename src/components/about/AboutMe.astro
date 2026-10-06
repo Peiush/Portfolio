@@ -1,0 +1,101 @@
+---
+import { site } from "../../data/site";
+
+const chipWhite = "inline-block select-none bg-white text-black text-4xl md:text-5xl font-black font-sans px-4 py-1.5 border-2 border-black shadow-[4px_4px_0_#DC2626]";
+const chipBlack = "inline-block select-none bg-black text-white text-4xl md:text-5xl font-black px-5 py-2 border-2 border-white shadow-[4px_4px_0_#DC2626]";
+const chipBy = "inline-block select-none bg-[#DC2626] text-white text-3xl md:text-4xl font-extrabold font-serif italic px-3 py-1 border border-black";
+---
+
+<section
+  id="about-me"
+  data-cursor="minimal"
+  class="w-full md:min-h-[140dvh] bg-[#0c0c0c] text-white pt-24 pb-32 md:py-36 px-6 md:px-16 lg:px-24 relative overflow-hidden flex flex-col justify-center select-none"
+  style="z-index:10;clip-path:polygon(0 0,100% 0,100% 93%,0 100%)"
+>
+  <div class="hidden lg:block absolute top-0 right-[-10%] w-[50%] h-[150%] bg-[#DC2626] skew-x-[-15deg] origin-top opacity-90 pointer-events-none" style="filter:drop-shadow(-8px 0 0 #000)"></div>
+    <div class="absolute inset-0 pointer-events-none opacity-[.03]" style="background-image:radial-gradient(#FFF 1px,transparent 1px);background-size:16px 16px"></div>
+
+  <svg viewBox="0 0 1000 1000" preserveAspectRatio="none" class="hidden md:block absolute inset-0 w-full h-full pointer-events-none" aria-hidden="true" focusable="false">
+    <path id="about-draw-path" d="M60 120 L60 80 L520 80 L480 210 L90 210" fill="none" stroke="#DC2626" stroke-width="8" stroke-linejoin="miter"></path>
+  </svg>
+
+  <div class="w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-12 md:gap-16 items-center relative z-10">
+    <div class="lg:col-span-6 flex flex-col items-start gap-10">
+      <div class="p5-reveal">
+        <p class="text-[10px] tracking-[0.6em] text-red-500 font-mono uppercase font-bold mb-4">[ ACCESS CODE // 02_ABOUT_ME ]</p>
+        <div class="flex flex-col gap-3.5">
+          <div class="flex flex-wrap items-center gap-3.5">
+            <span class={`${chipWhite} -rotate-2`}>ENGINEER</span>
+            <span class={`${chipBy} rotate-3`}>BY</span>
+          </div>
+          <div><span class={`${chipBlack} rotate-1`}>DAY.</span></div>
+          <div class="flex flex-wrap items-center gap-3.5 mt-2">
+            <span class={`${chipWhite} rotate-2`}>MAKER</span>
+            <span class={`${chipBy} -rotate-3`}>BY</span>
+          </div>
+          <div><span class={`${chipBlack} -rotate-1`}>NIGHT.</span></div>
+        </div>
+      </div>
+
+      <div class="p5-reveal relative w-full max-w-xl">
+        <div class="absolute inset-0 bg-[#FDE047] translate-x-2.5 translate-y-2.5 -skew-x-3" aria-hidden="true"></div>
+        <div class="relative bg-black border-2 border-white -skew-x-3 p-6 md:p-8">
+          <div class="skew-x-3 flex flex-col gap-6">
+            <h3 class="text-xl md:text-2xl font-black text-[#FDE047] uppercase tracking-wider leading-tight">Full-stack developer.<br />Built to ship.</h3>
+            <div class="flex flex-col gap-4 text-sm md:text-base text-zinc-200 leading-relaxed select-all">
+              <p>
+                My code has flown through <strong class="text-[#22D3EE] font-black">ISRO's</strong> National Remote Sensing Centre. It has also kept <strong class="text-[#FDE047] font-black">500+ people</strong> logged in, in the right roles, at a school in Tanzania.
+              </p>
+              <p>
+                Right now I'm building <strong class="text-[#FDE047] font-black uppercase tracking-wide">TutorA</strong>, a tutor-booking platform with tested APIs, two-factor auth and CI. I don't ship it unless it's <strong class="text-white">fast</strong>, <strong class="text-white">secure</strong> and a little bit <strong class="text-white">playful</strong>.
+              </p>
+            </div>
+            <dl class="grid grid-cols-3 gap-3 border-t-2 border-dashed border-zinc-700 pt-5 font-mono">
+              <div><dt class="text-2xl md:text-3xl font-black text-[#22D3EE]">ISRO</dt><dd class="text-[10px] uppercase tracking-widest text-zinc-400">National Remote Sensing</dd></div>
+              <div><dt class="text-2xl md:text-3xl font-black text-[#FDE047]">500+</dt><dd class="text-[10px] uppercase tracking-widest text-zinc-400">Users, Tanzania</dd></div>
+            </dl>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="p5-reveal lg:col-span-6 flex justify-center lg:justify-end">
+      <div class="group relative w-64 h-64 md:w-[368px] md:h-[368px]">
+        <div class="absolute inset-0 bg-white border-4 border-black translate-x-2 translate-y-2 -rotate-3 scale-[1.02] z-0"></div>
+        <div class="absolute inset-0 bg-[#DC2626] border-4 border-black -translate-x-2 -translate-y-2 rotate-6 z-0"></div>
+        <div class="relative w-full h-full border-4 border-black bg-[#cfcfcf] shadow-[8px_8px_0_#000] -rotate-2 z-10 transition-transform duration-500 group-hover:rotate-1 overflow-visible">
+          <div class="absolute inset-0 opacity-[.06] pointer-events-none" style="background-image:radial-gradient(#000 2px,transparent 2px);background-size:8px 8px"></div>
+          <img src="/images/assets/portrait.svg" alt={`Illustrated portrait of ${site.name}`} loading="lazy" width="432" height="600" class="w-[260px] md:w-[432px] absolute left-1/2 -translate-x-1/2 -bottom-10 md:-bottom-[104px] transition duration-500 group-hover:scale-105 group-hover:rotate-3" />
+        </div>
+        <img src="/images/assets/prop-mouse.svg" alt="" aria-hidden="true" loading="lazy" width="100" height="140" class="absolute w-16 md:w-32 left-2 bottom-2 -z-10 transition-all duration-[400ms] group-hover:rotate-3 group-hover:left-[-7rem] group-hover:bottom-24" />
+        <img src="/images/assets/prop-laptop.svg" alt="" aria-hidden="true" loading="lazy" width="200" height="140" class="absolute w-0 opacity-90 left-2 bottom-2 -z-10 transition-all duration-[400ms] group-hover:w-48 group-hover:rotate-3 group-hover:left-[-7rem] group-hover:bottom-[15.5rem]" />
+        <img src="/images/assets/prop-coffee.svg" alt="" aria-hidden="true" loading="lazy" width="140" height="140" class="absolute w-40 z-20 scale-0 left-[18rem] bottom-[18rem] transition-all duration-[400ms] group-hover:scale-100 group-hover:rotate-3" />
+      </div>
+    </div>
+  </div>
+</section>
+
+<script>
+  import { gsap, ScrollTrigger } from "../../lib/gsap";
+  import { prefersReducedMotion } from "../../lib/motion";
+
+  const section = document.getElementById("about-me")!;
+  const path = document.getElementById("about-draw-path") as unknown as SVGPathElement;
+  if (!prefersReducedMotion()) {
+    const len = path.getTotalLength();
+    gsap.set(path, { strokeDasharray: len, strokeDashoffset: len });
+    gsap.to(path, {
+      strokeDashoffset: 0,
+      ease: "none",
+      scrollTrigger: { trigger: section, start: "top bottom", end: "bottom top", scrub: 0.5 },
+    });
+    gsap.fromTo(
+      section.querySelectorAll(".p5-reveal"),
+      { x: -50, y: 30, opacity: 0, scale: 0.9, rotate: -3 },
+      {
+        x: 0, y: 0, opacity: 1, scale: 1, rotate: 0, duration: 0.7, stagger: 0.12, ease: "back.out(1.5)",
+        scrollTrigger: { trigger: section, start: "top 70%", toggleActions: "play none none reverse" },
+      },
+    );
+  }
+</script>

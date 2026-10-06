@@ -1,0 +1,33 @@
+---
+import Base from "../layouts/Base.astro";
+import Preloader from "../components/global/Preloader.astro";
+import CustomCursor from "../components/global/CustomCursor.astro";
+import Hero from "../components/hero/Hero.astro";
+import AboutMe from "../components/about/AboutMe.astro";
+import Corridor from "../components/Corridor.astro";
+import Projects from "../components/projects/Projects.astro";
+import SkillsOS from "../components/skills/SkillsOS";
+import ContactForm from "../components/contact/ContactForm";
+import DialogueOverlay from "../components/global/DialogueOverlay";
+import SecretLoop from "../components/global/SecretLoop.astro";
+import FloatingNav from "../components/global/FloatingNav.astro";
+import { site } from "../data/site";
+---
+
+<Base>
+  <h1 class="sr-only">{site.name} — {site.role}</h1>
+  <Preloader />
+  <CustomCursor />
+  <FloatingNav />
+  <DialogueOverlay client:idle />
+  <main class="w-full relative bg-zinc-950 scroll-smooth">
+    <SecretLoop position="top" />
+    <Hero />
+    <AboutMe />
+    <Corridor />
+    <Projects />
+    <SkillsOS client:load />
+    <ContactForm client:visible={{ rootMargin: "1600px" }} />
+    <SecretLoop position="bottom" />
+  </main>
+</Base>

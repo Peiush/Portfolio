@@ -1,0 +1,270 @@
+---
+import { renderCell, skinOrder, cellGeometry } from "./skins";
+import { site } from "../../data/site";
+
+const words = site.heroWords;
+---
+
+<div id="hero" class="w-full min-h-dvh">
+  <div
+    id="hero-stage"
+    class="relative w-screen h-dvh bg-zinc-950 text-white overflow-hidden select-none"
+    style="background:linear-gradient(135deg,rgba(24,24,27,1) 0%,rgba(39,39,42,.8) 25%,rgba(24,24,27,.9) 50%,rgba(29,29,32,.85) 75%,rgba(24,24,27,1) 100%),radial-gradient(circle at 20% 50%,rgba(99,102,241,.08) 0%,transparent 50%),radial-gradient(circle at 80% 80%,rgba(168,85,247,.06) 0%,transparent 50%)"
+    data-words={JSON.stringify(words)}
+  >
+    <div id="hero-group" class="absolute inset-0">
+      {cellGeometry.map((_, i) => (
+        <div
+          id={`hero-cell-${i + 1}`}
+          data-cell={i}
+          class="absolute top-0 left-0 w-full h-full overflow-hidden z-10"
+          style={`clip-path:var(--clip-${i + 1});`}
+          set:html={renderCell(i, skinOrder[i], words[i])}
+        />
+      ))}
+    </div>
+
+    <svg viewBox="0 0 100 100" preserveAspectRatio="none" class="absolute inset-0 w-full h-full pointer-events-none z-20 hidden md:block" aria-hidden="true" focusable="false">
+      {[
+        { c: 0, d: "M45 0 L40 52" },
+        { c: 0, d: "M0 45 L40 52" },
+        { c: 1, d: "M40 52 L70 48" },
+        { c: 4, d: "M70 48 L100 40" },
+        { c: 2, d: "M40 52 L35 100" },
+        { c: 3, d: "M70 48 L65 100" },
+      ].map((l) => (
+        <path data-cell={l.c} class="grid-border-line" d={l.d} stroke="#000" stroke-width="4" vector-effect="non-scaling-stroke" fill="none" />
+      ))}
+    </svg>
+  </div>
+</div>
+
+<style is:global>
+  [id^="hero-cell-"] { opacity: 0; }
+</style>
+
+<script>
+  import { gsap, Draggable } from "../../lib/gsap";
+  import { prefersReducedMotion } from "../../lib/motion";
+  import { renderCell, skinOrder, cellGeometry, type SkinId } from "./skins";
+
+  const stage = document.getElementById("hero-stage")!;
+  const group = document.getElementById("hero-group")!;
+  const words: string[] = JSON.parse(stage.dataset.words!);
+  const cells = [...stage.querySelectorAll<HTMLElement>("[id^='hero-cell-']")];
+  const seams = [...stage.querySelectorAll<SVGPathElement>(".grid-border-line")];
+  const reduced = prefersReducedMotion();
+  const isDesktop = () => window.innerWidth > 768;
+  const Q = [1, 4, 0, 2, 3];
+  const EXIT = [2, 0, 3, 4, 1];
+  const ORDER = [0, 2, 3, 4, 1];
+
+  let skins: SkinId[] = [...skinOrder];
+  let introDone = false;
+  let busy = false;
+
+  const mobile = () => !isDesktop();
+  const finalClip = (i: number) => (mobile() ? `var(--clip-${i + 1})` : cellGeometry[i].final);
+
+  /* ---------- wobble boil ---------- */
+  const turb = document.querySelector("feTurbulence");
+  if (turb && !reduced) {
+    const f = { v: 0.06 };
+    gsap.to(f, {
+      v: 0.04, duration: 0.12, ease: "steps(2)", yoyo: true, repeat: -1,
+      onUpdate: () => turb.setAttribute("baseFrequency", String(f.v)),
+    });
+  }
+
+  /* ---------- puppet ---------- */
+  type Limb = { sel: string; sx: number; sy: number; cx: number; cy: number; ex: number; ey: number; amp: number };
+  const limbs: Limb[] = [
+    { sel: ".puppet-left-arm-path", sx: 56, sy: 88, cx: 30, cy: 104, ex: 20, ey: 132, amp: 18 },
+    { sel: ".puppet-right-arm-path", sx: 86, sy: 88, cx: 112, cy: 104, ex: 122, ey: 132, amp: 18 },
+    { sel: ".puppet-left-leg-path", sx: 62, sy: 146, cx: 55, cy: 178, ex: 50, ey: 208, amp: 20 },
+    { sel: ".puppet-right-leg-path", sx: 80, sy: 146, cx: 87, cy: 178, ex: 92, ey: 208, amp: 20 },
+  ];
+  let puppetDrag: Draggable | null = null;
+  let puppetCleanup: (() => void) | null = null;
+
+  const killPuppet = () => {
+    puppetDrag?.kill();
+    puppetDrag = null;
+    puppetCleanup?.();
+    puppetCleanup = null;
+  };
+
+  const initPuppet = () => {
+    killPuppet();
+    const win = document.getElementById("hero-puppet-window");
+    const bounds = document.getElementById("hero-puppet-bounds");
+    if (!win || !bounds || !isDesktop()) return;
+    const paths = limbs.map((l) => win.querySelector<SVGPathElement>(l.sel)!);
+    const rest = (l: Limb) => `M${l.sx} ${l.sy} Q${l.cx} ${l.cy} ${l.ex} ${l.ey}`;
+
+    const timer = window.setTimeout(() => {
+      puppetDrag = Draggable.create(win, {
+        type: "x,y",
+        bounds,
+        edgeResistance: 0.85,
+        onDrag() {
+          const t = Date.now() * 0.05;
+          limbs.forEach((l, i) => {
+            const wob = Math.sin(t + i) * l.amp;
+            const bend = this.deltaX * 4.5;
+            const d = `M${l.sx} ${l.sy} Q${l.cx - bend * 0.5 + wob * 0.5} ${l.cy + Math.cos(t + i) * 6} ${l.ex - bend + wob} ${l.ey + Math.cos(t + i) * 4}`;
+            gsap.to(paths[i], { attr: { d }, duration: 0.05, overwrite: "auto" });
+          });
+        },
+        onDragEnd() {
+          limbs.forEach((l, i) => gsap.to(paths[i], { attr: { d: rest(l) }, duration: 0.8, ease: "elastic.out(1.2,0.4)", overwrite: "auto" }));
+        },
+      })[0];
+    }, 300);
+
+    const pupils = [...win.querySelectorAll<SVGElement>("[data-puppet-pupil]")];
+    const movers = pupils.map((p) => ({ x: gsap.quickTo(p, "x", { duration: 0.35, ease: "power3.out" }), y: gsap.quickTo(p, "y", { duration: 0.35, ease: "power3.out" }) }));
+    let raf = 0;
+    const look = (e: PointerEvent) => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        pupils.forEach((p, i) => {
+          const eye = p.parentElement!.getBoundingClientRect();
+          const dx = e.clientX - (eye.left + eye.width / 2);
+          const dy = e.clientY - (eye.top + eye.height / 2);
+          const dist = Math.hypot(dx, dy) || 1;
+          const k = Math.min(1, dist / 160);
+          movers[i].x((dx / dist) * k * 1.4 * 2.2);
+          movers[i].y((dy / dist) * k * 1.6 * 2.2);
+        });
+      });
+    };
+    const reset = () => movers.forEach((m) => { m.x(0); m.y(0); });
+    window.addEventListener("pointermove", look);
+    document.addEventListener("mouseleave", reset);
+    puppetCleanup = () => {
+      clearTimeout(timer);
+      window.removeEventListener("pointermove", look);
+      document.removeEventListener("mouseleave", reset);
+    };
+  };
+
+  /* ---------- hover micro-interactions (delegated, skin-aware) ---------- */
+  cells.forEach((cell) => {
+    const q = <T extends Element>(s: string) => cell.querySelector<T>(s);
+    cell.addEventListener("mousemove", (e) => {
+      const orb = q<HTMLElement>("[data-orb]");
+      if (!orb) return;
+      const r = cell.getBoundingClientRect();
+      gsap.to(orb, { x: e.clientX - r.left, y: e.clientY - r.top, duration: 0.6, ease: "power2.out" });
+    });
+    cell.addEventListener("mouseenter", () => {
+      if (reduced) return;
+      const bar = q<HTMLElement>("[data-bar]"), ring = q<HTMLElement>("[data-ring]");
+      if (bar) bar.style.transform = "translate(-50%,-50%) rotate(-8deg) scale(1.1)";
+      if (ring) ring.style.transform = "translate(-50%,-50%) rotate(180deg) scale(1.05)";
+      const items = cell.querySelectorAll(".swiss-grid-item");
+      if (items.length) gsap.to(items, { x: () => gsap.utils.random(-5, 5), y: () => gsap.utils.random(-10, 10), duration: 0.4, stagger: 0.05, ease: "power1.inOut" });
+      const star = q<HTMLElement>("[data-star]"), arrow = q<HTMLElement>("[data-arrow]");
+      if (star) star.style.transform = "rotate(45deg) scale(1.2)";
+      if (arrow) arrow.style.transform = "translateX(10px) rotate(-10deg)";
+    });
+    cell.addEventListener("mouseleave", () => {
+      const bar = q<HTMLElement>("[data-bar]"), ring = q<HTMLElement>("[data-ring]");
+      if (bar) bar.style.transform = "translate(-50%,-50%) rotate(-12deg)";
+      if (ring) ring.style.transform = "translate(-50%,-50%) rotate(0deg)";
+      const items = cell.querySelectorAll(".swiss-grid-item");
+      if (items.length) gsap.to(items, { x: 0, y: 0, duration: 0.4, ease: "power3.out" });
+      const star = q<HTMLElement>("[data-star]"), arrow = q<HTMLElement>("[data-arrow]");
+      if (star) star.style.transform = "";
+      if (arrow) arrow.style.transform = "";
+    });
+  });
+
+  /* ---------- entrance ---------- */
+  const showFinal = () => {
+    cells.forEach((c, i) => { c.style.clipPath = finalClip(i); c.style.opacity = "1"; });
+    introDone = true;
+    if (isDesktop()) initPuppet();
+  };
+
+  const intro = () => {
+    if (reduced) return showFinal();
+    if (mobile()) {
+      gsap.fromTo(cells, { opacity: 0, scale: 0.95 }, { opacity: 1, scale: 1, duration: 0.8, stagger: 0.08, ease: "power2.out", onComplete: () => { introDone = true; } });
+      cells.forEach((c, i) => (c.style.clipPath = finalClip(i)));
+      return;
+    }
+    const tl = gsap.timeline({ defaults: { ease: "power3.inOut" }, onComplete: () => { introDone = true; initPuppet(); } });
+    cells.forEach((cell, i) => {
+      gsap.set(cell, { clipPath: cellGeometry[i].initial, opacity: 1 });
+      tl.to(cell, { clipPath: cellGeometry[i].final, duration: i === 0 ? 1.3 : 0.85, ease: "power4.inOut" });
+      const lines = seams.filter((s) => Number(s.dataset.cell) === i);
+      if (lines.length) tl.fromTo(lines, { strokeDasharray: 1500, strokeDashoffset: 1500 }, { strokeDashoffset: 0, duration: 0.6, ease: "power2.inOut" }, "-=0.65");
+      tl.fromTo(cell.querySelectorAll(".hero-text-anim"), { y: 40, opacity: 0 }, { y: 0, opacity: 1, duration: 0.5, stagger: 0.05, ease: "back.out(1.4)" }, "-=0.4");
+    });
+  };
+  // Cells start hidden via CSS; hold them hidden until the loader finishes.
+  if (window.__loaderComplete) intro();
+  else window.addEventListener("loaderComplete", intro, { once: true });
+
+  /* ---------- skin rotation ---------- */
+  const setSkin = (i: number, skin: SkinId) => {
+    cells[i].innerHTML = renderCell(i, skin, words[i]);
+    if (skin === "brutal") initPuppet();
+  };
+
+  const rotate = () => {
+    if (!introDone || busy || !isDesktop()) return;
+    busy = true;
+    const next = skins.map((_, i) => skins[Q[i]]);
+    const w = stage.clientWidth, h = stage.clientHeight;
+    const center = (i: number) => ({ x: (cellGeometry[i].center[0] / 100) * w, y: (cellGeometry[i].center[1] / 100) * h });
+    const vec = (from: number, to: number) => {
+      const a = center(from), b = center(to);
+      const dx = b.x - a.x, dy = b.y - a.y, len = Math.hypot(dx, dy) || 1, m = Math.min(w, h) * 0.16;
+      return { x: (dx / len) * m, y: (dy / len) * m };
+    };
+    killPuppet();
+    const arrow = stage.querySelector<HTMLElement>("[data-arrow]");
+
+    if (reduced) {
+      cells.forEach((c, i) => { gsap.to(c, { opacity: 0, duration: 0.15, onComplete() { setSkin(i, next[i]); gsap.to(c, { opacity: 1, duration: 0.15 }); } }); });
+      skins = next;
+      setTimeout(() => (busy = false), 350);
+      return;
+    }
+
+    const tl = gsap.timeline({ onComplete: () => { skins = next; busy = false; } });
+    if (arrow) tl.to(arrow, { scale: 0.8, duration: 0.1, yoyo: true, repeat: 1 }, 0);
+    tl.to(group, { rotation: -1.4, scale: 1.02, duration: 0.45, ease: "power2.inOut" }, 0)
+      .to(group, { rotation: 0, scale: 1, duration: 0.9, ease: "elastic.out(1,0.55)" }, 0.45);
+
+    cells.forEach((cell, i) => {
+      const t = ORDER.indexOf(i) * 0.09;
+      const out = vec(i, EXIT[i]);
+      const from = vec(i, Q[i]);
+      tl.to(cell, { x: out.x, y: out.y, rotation: -5, scale: 0.96, opacity: 0, duration: 0.38, ease: "power2.in" }, t)
+        .add(() => {
+          setSkin(i, next[i]);
+          gsap.set(cell, { x: from.x, y: from.y, rotation: 5, scale: 0.96, opacity: 0 });
+        }, t + 0.38)
+        .to(cell, { x: 0, y: 0, rotation: 0, scale: 1, opacity: 1, duration: 0.62, ease: "power3.out" }, t + 0.39);
+    });
+  };
+
+  stage.addEventListener("click", (e) => {
+    if ((e.target as Element).closest("[data-hero-rotate]")) rotate();
+  });
+  stage.addEventListener("keydown", (e) => {
+    if ((e.key === "Enter" || e.key === " ") && (e.target as Element).closest("[data-hero-rotate]")) {
+      e.preventDefault();
+      rotate();
+    }
+  });
+
+  window.addEventListener("resize", () => {
+    if (introDone) cells.forEach((c, i) => (c.style.clipPath = finalClip(i)));
+  });
+</script>

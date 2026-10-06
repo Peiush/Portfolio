@@ -1,0 +1,102 @@
+---
+import "@fontsource-variable/inter";
+import "@fontsource/lexend-mega/400.css";
+import "@fontsource/lexend-mega/800.css";
+import "@fontsource/staatliches/400.css";
+import "@fontsource/caveat/400.css";
+import "@fontsource/caveat/700.css";
+import "@fontsource/playfair-display/400.css";
+import "@fontsource/playfair-display/700.css";
+import "@fontsource/playfair-display/400-italic.css";
+import "../styles/global.css";
+import { site } from "../data/site";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+const {
+  title = `${site.name} — ${site.role}`,
+  description = "Piyush Saini: full-stack developer (React, Next.js, Node.js, TypeScript, PostgreSQL) who has shipped at ISRO-NRSC and builds secure, tested, playful web apps.",
+} = Astro.props;
+
+const origin = Astro.site?.origin;
+const canonical = origin ? new URL(Astro.url.pathname, origin).href : undefined;
+const ogImage = origin ? new URL("/images/assets/og-image.png", origin).href : undefined;
+const sameAs = site.socials.filter((s) => s.id !== "email").map((s) => s.url);
+const jsonLd = {
+  "@context": "https://schema.org",
+  "@graph": [
+    {
+      "@type": "Person",
+      "@id": origin ? `${origin}/#person` : "#person",
+      name: "Piyush Saini",
+      alternateName: site.name,
+      jobTitle: site.role,
+      description,
+      email: `mailto:${site.email}`,
+      ...(origin ? { url: origin, image: ogImage } : {}),
+      sameAs,
+      knowsAbout: ["React", "Next.js", "Node.js", "TypeScript", "PostgreSQL", "Prisma", "GSAP", "Web security"],
+      workLocation: { "@type": "Place", name: site.location },
+    },
+    {
+      "@type": "WebSite",
+      name: `${site.name} — ${site.role}`,
+      ...(origin ? { url: origin } : {}),
+      inLanguage: "en",
+      author: { "@id": origin ? `${origin}/#person` : "#person" },
+    },
+  ],
+};
+---
+
+<!doctype html>
+<html lang="en" class="dark [scrollbar-width:none] select-none overflow-x-hidden">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="author" content={site.name} />
+    <meta name="theme-color" content="#09090b" />
+    <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:site_name" content={site.name} />
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="keywords" content={site.keywords.join(", ")} />
+    <meta name="creator" content={site.name} />
+    <meta name="language" content="en" />
+    <meta property="og:locale" content="en_US" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={`${site.name} — ${site.role}`} />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image:alt" content={`${site.name} — ${site.role}`} />
+    {canonical && <link rel="canonical" href={canonical} />}
+    {canonical && <meta property="og:url" content={canonical} />}
+    {ogImage && <meta property="og:image" content={ogImage} />}
+    {ogImage && <meta name="twitter:image" content={ogImage} />}
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="icon" href="/favicon-32.png" type="image/png" sizes="32x32" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <link rel="sitemap" type="application/xml" href="/sitemap.xml" />
+    <script type="application/ld+json" set:html={JSON.stringify(jsonLd)} />
+  </head>
+  <body class="bg-zinc-950 text-zinc-50 min-h-dvh font-sans selection:bg-yellow-300 selection:text-black">
+    <!-- Hand-drawn wobble filter, referenced as filter:url(#handdrawn-wobble) -->
+    <svg aria-hidden="true" focusable="false" class="absolute w-0 h-0 hidden">
+      <defs>
+        <filter id="handdrawn-wobble">
+          <feTurbulence type="fractalNoise" baseFrequency="0.06" numOctaves="3" result="noise"></feTurbulence>
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale="4" xChannelSelector="R" yChannelSelector="G"></feDisplacementMap>
+        </filter>
+      </defs>
+    </svg>
+    <slot />
+  </body>
+</html>

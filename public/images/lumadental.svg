@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120" fill="none" stroke="#000" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+  <rect x="2" y="2" width="236" height="116" fill="#dbeafe"/>
+  <!-- browser window -->
+  <rect x="14" y="14" width="212" height="92" rx="4" fill="#fff"/>
+  <path d="M14 30h212"/>
+  <g fill="#000" stroke="none">
+    <circle cx="24" cy="22" r="2"/>
+    <circle cx="32" cy="22" r="2"/>
+    <circle cx="40" cy="22" r="2"/>
+  </g>
+  <!-- tooth -->
+  <path d="M62 44c-10-5-22 2-21 16 1 9 5 13 7 24 1 6 3 10 6 10s3-10 7-10 4 10 7 10 5-4 6-10c2-11 6-15 7-24 1-14-11-21-21-16z" fill="#fff" stroke-width="2.5"/>
+  <path d="M52 52c3-2 6-2 9 0" stroke="#2f55c8" stroke-width="2"/>
+  <!-- sparkles -->
+  <g fill="#fde047" stroke-width="1.5">
+    <path d="M92 44l2.5 5.5L100 52l-5.5 2.5L92 60l-2.5-5.5L84 52l5.5-2.5z"/>
+    <path d="M36 42l1.5 3.5L41 47l-3.5 1.5L36 52l-1.5-3.5L31 47l3.5-1.5z"/>
+  </g>
+  <!-- content lines + button -->
+  <path d="M112 46h90M112 56h70M112 66h80" stroke-width="2"/>
+  <rect x="112" y="78" width="54" height="16" rx="3" fill="#2f55c8"/>
+  <path d="M122 86h34" stroke="#fff" stroke-width="2"/>
+  <!-- calendar -->
+  <rect x="176" y="76" width="34" height="22" rx="2" fill="#bfdbfe"/>
+  <path d="M176 84h34M186 72v6M200 72v6"/>
+  <path d="m188 91 4 4 8-8" stroke-width="2"/>
+</svg>

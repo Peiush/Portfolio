@@ -1,0 +1,126 @@
+---
+const items = [
+  { id: "hero", n: "01", label: "intro" },
+  { id: "about-me", n: "02", label: "about" },
+  { id: "projects", n: "03", label: "work" },
+  { id: "skills", n: "04", label: "skills" },
+  { id: "contact", n: "05", label: "hello" },
+];
+---
+
+<nav aria-label="Sections" class="fixed right-6 top-1/2 -translate-y-1/2 z-50 hidden md:flex flex-col gap-6">
+  {items.map((it) => (
+    <a
+      href={`#${it.id}`}
+      data-nav-id={it.id}
+      data-nav-n={it.n}
+      data-nav-label={it.label}
+      class="group flex items-center justify-end gap-3 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-yellow-300"
+    >
+      <span data-nav-tip class="opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 group-focus-visible:opacity-100 group-focus-visible:translate-x-0 transition-all duration-300 whitespace-nowrap font-handwritten text-xs font-bold bg-white text-zinc-700 border border-dashed border-zinc-400 px-2 py-0.5 rounded-[40%_60%_70%_30%/40%_50%_60%_50%]">
+        ~ {it.n} {it.label} ~
+      </span>
+      <span data-nav-dot class="block w-1.5 h-1.5 rounded-full bg-zinc-400"></span>
+    </a>
+  ))}
+</nav>
+
+<script>
+  import { smoothBehavior } from "../../lib/motion";
+
+  type Skin = {
+    tip: string;
+    tipActive: string;
+    tipInactive: string;
+    dotActive: string;
+    dotInactive: string;
+    text: (n: string, l: string) => string;
+  };
+
+  const skins: Record<string, Skin> = {
+    hero: {
+      tip: "font-mono text-[9px] tracking-[0.2em] bg-zinc-950/80 rounded px-2 py-0.5 border",
+      tipActive: "text-cyan-400 border-cyan-500/30",
+      tipInactive: "text-zinc-500 border-zinc-800",
+      dotActive: "w-2.5 h-2.5 rotate-45 bg-cyan-400 border border-yellow-400 shadow-[0_0_8px_rgba(34,211,238,.7)]",
+      dotInactive: "w-1.5 h-1.5 rounded-full bg-zinc-500",
+      text: (n, l) => `[ ${n} // ${l.toUpperCase()} ]`,
+    },
+    "about-me": {
+      tip: "font-serif text-[10px] tracking-[0.15em] bg-zinc-950/80 rounded px-2 py-0.5 border",
+      tipActive: "text-purple-300 border-purple-500/30",
+      tipInactive: "text-zinc-500 border-zinc-800",
+      dotActive: "w-2.5 h-2.5 rounded-full bg-gradient-to-tr from-purple-500 to-pink-500 shadow-[0_0_8px_#8b5cf6]",
+      dotInactive: "w-1.5 h-1.5 rounded-full bg-zinc-500",
+      text: (n, l) => `${n} · ${l}`,
+    },
+    projects: {
+      tip: "font-neobrutal text-[9px] rounded-none border border-black px-2 py-0.5",
+      tipActive: "bg-pink-400 text-black font-black",
+      tipInactive: "bg-white text-black",
+      dotActive: "w-2.5 h-2.5 rounded-none bg-[#FFDE4D] border border-black shadow-[1px_1px_0_#000]",
+      dotInactive: "w-1.5 h-1.5 bg-zinc-400",
+      text: (n, l) => `${n} : ${l.toUpperCase()}`,
+    },
+    skills: {
+      tip: "font-mono text-[9px] bg-[#c0c0c0] text-black px-2 py-0.5 border-t-2 border-l-2 border-white border-r-2 border-b-2 border-r-[#404040] border-b-[#404040]",
+      tipActive: "font-bold",
+      tipInactive: "",
+      dotActive: "w-3 h-3 bg-[#c0c0c0] border-t border-l border-white border-r border-b border-r-[#404040] border-b-[#404040] shadow-[1px_1px_0_#000]",
+      dotInactive: "w-1.5 h-1.5 bg-[#808080] hover:bg-[#e9c46a]",
+      text: (n, l) => `${n}_${l.toUpperCase()}.EXE`,
+    },
+    contact: {
+      tip: "font-handwritten text-xs font-bold border border-dashed border-zinc-400 px-2 py-0.5 rounded-[40%_60%_70%_30%/40%_50%_60%_50%]",
+      tipActive: "bg-green-50 text-green-800",
+      tipInactive: "bg-white text-zinc-700",
+      dotActive: "w-3 h-3 bg-zinc-800 rounded-[40%_60%_70%_30%/40%_50%_60%_50%]",
+      dotInactive: "w-1.5 h-1.5 rounded-full bg-zinc-400",
+      text: (n, l) => `~ ${n} ${l} ~`,
+    },
+  };
+
+  const links = [...document.querySelectorAll<HTMLAnchorElement>("[data-nav-id]")];
+  const tipBase =
+    "opacity-0 translate-x-2 group-hover:opacity-100 group-hover:translate-x-0 group-focus-visible:opacity-100 group-focus-visible:translate-x-0 transition-all duration-300 whitespace-nowrap";
+  let active = "hero";
+
+  const render = () => {
+    const skin = skins[active] ?? skins.contact;
+    links.forEach((a) => {
+      const on = a.dataset.navId === active;
+      const tip = a.querySelector<HTMLElement>("[data-nav-tip]")!;
+      const dot = a.querySelector<HTMLElement>("[data-nav-dot]")!;
+      tip.className = `${tipBase} ${skin.tip} ${on ? skin.tipActive : skin.tipInactive}`;
+      tip.textContent = skin.text(a.dataset.navN!, a.dataset.navLabel!);
+      dot.className = `block ${on ? skin.dotActive : skin.dotInactive}`;
+      if (on) a.setAttribute("aria-current", "true");
+      else a.removeAttribute("aria-current");
+    });
+  };
+
+  const set = (id: string) => {
+    if (id === active) return;
+    active = id;
+    render();
+  };
+  render();
+
+  const observer = new IntersectionObserver(
+    (entries) => {
+      for (const e of entries) if (e.isIntersecting) set(e.target.id);
+    },
+    { rootMargin: "-45% 0px -45% 0px", threshold: 0 },
+  );
+  links.forEach((a) => {
+    const target = document.getElementById(a.dataset.navId!);
+    if (target) observer.observe(target);
+    a.addEventListener("click", (e) => {
+      e.preventDefault();
+      target?.scrollIntoView({ behavior: smoothBehavior(), block: "start" });
+    });
+  });
+  window.addEventListener("scroll", () => {
+    if (window.scrollY < 200) set("hero");
+  }, { passive: true });
+</script>

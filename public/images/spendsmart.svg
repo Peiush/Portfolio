@@ -1,0 +1,30 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 120" fill="none" stroke="#000" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round">
+  <rect x="2" y="2" width="236" height="116" fill="#ffe4ec"/>
+  <path d="M2 104h236v14H2z" fill="#fbcfe8"/>
+  <!-- pie chart -->
+  <circle cx="40" cy="40" r="22" fill="#fde047"/>
+  <path d="M40 40V18a22 22 0 0 1 20 13z" fill="#60a5fa"/>
+  <path d="M40 40l20-9a22 22 0 0 1-3 28z" fill="#4ade80"/>
+  <circle cx="40" cy="40" r="7" fill="#ffe4ec"/>
+  <!-- falling coin -->
+  <circle cx="122" cy="14" r="10" fill="#fde047"/>
+  <path d="M118 10h8M122 10v10M118 17h8" stroke-width="2"/>
+  <path d="M122 28v6M122 38v2" stroke-width="2"/>
+  <!-- piggy bank -->
+  <path d="M96 62l-8-12 14 4" fill="#ff85a2"/>
+  <ellipse cx="124" cy="74" rx="36" ry="26" fill="#ff85a2"/>
+  <path d="M148 56l6-14 8 12z" fill="#ff85a2"/>
+  <ellipse cx="156" cy="80" rx="12" ry="9" fill="#f9a8d4"/>
+  <circle cx="153" cy="80" r="1.8" fill="#000"/>
+  <circle cx="160" cy="80" r="1.8" fill="#000"/>
+  <circle cx="148" cy="64" r="3" fill="#000"/>
+  <path d="M112 50h22" stroke-width="4"/>
+  <path d="M104 96v8M118 98v8M134 98v8M146 94v10" stroke-width="5"/>
+  <path d="M88 76c-8 0-10 8-4 10" />
+  <!-- up arrow -->
+  <path d="M184 92l16-18 12 10 18-28" stroke-width="4" stroke="#16a34a"/>
+  <path d="M220 54h10v10" stroke-width="4" stroke="#16a34a"/>
+  <!-- sparkles -->
+  <path d="M200 20l3 6 6 3-6 3-3 6-3-6-6-3 6-3z" fill="#fff"/>
+  <path d="M76 90l2 4 4 2-4 2-2 4-2-4-4-2 4-2z" fill="#fff" stroke-width="1.8"/>
+</svg>
